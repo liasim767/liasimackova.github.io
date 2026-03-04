@@ -1,87 +1,205 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <meta charset="UTF-8">
-    <title>Lia Simáčková | Gamer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #333;
-        }
-
-        .card {
-            background: white;
-            max-width: 700px;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 2.8em;
-            margin-bottom: 10px;
-            color: #764ba2;
-        }
-
-        h2 {
-            font-weight: 500;
-            margin-bottom: 25px;
-            color: #555;
-        }
-
-        p {
-            font-size: 1.1em;
-            line-height: 1.7;
-            margin-bottom: 20px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 8px 18px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 50px;
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
-
-        footer {
-            margin-top: 30px;
-            font-size: 0.85em;
-            color: #777;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Lia Simacková | Gamer</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.card{
+    background:white;
+    max-width:750px;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 20px 40px rgba(0,0,0,.2);
+    text-align:center;
+}
+.badge{
+    display:inline-block;
+    padding:8px 18px;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
+    border-radius:50px;
+    font-size:.9em;
+    margin-top:10px;
+}
+canvas{
+    background:black;
+    margin:20px auto 0;
+    display:block;
+    border-radius:10px;
+}
+.game-section{
+    margin-top:40px;
+    padding-top:20px;
+    border-top:2px dashed #ddd;
+}
+</style>
 </head>
 <body>
+<div class="card">
+    <h1>Lia Simacková</h1>
+    <h2>Milovnice počítačových her 🎮</h2>
 
-    <div class="card">
-        <h1>Lia Simacková</h1>
-        <h2>Milovnice počítačových her 🎮</h2>
+    <p>
+        Počítačové hry jsou pro mě víc než jen zábava. Jsou způsobem,
+        jak uniknout do jiných světů a rozvíjet kreativitu.
+    </p>
 
-        <p>
-            Počítačové hry jsou pro mě víc než jen zábava. Jsou způsobem, jak uniknout do
-            jiných světů, rozvíjet kreativitu a zlepšovat strategické myšlení.
-        </p>
+    <p>
+        Ráda objevuji nové hry, překonávám výzvy a spolupracuji s ostatními hráči.
+    </p>
 
-        <p>
-            Ráda objevuji nové hry, překonávám výzvy a spolupracuji s ostatními hráči.
-            Hraní mě učí trpělivosti, rychlému rozhodování a práci s moderní technologií.
-        </p>
+    <span class="badge">Gaming • Zábava • Kreativita</span>
 
-        <span class="badge">Gaming • Zábava • Kreativita</span>
-
-        <footer>
-            © 2026 Lia Simacková
-        </footer>
+    <!-- PACMAN DOLE -->
+    <div class="game-section">
+        <h3>Mini Pac-Man 🟡</h3>
+        <canvas id="game" width="304" height="344"></canvas>
+        <p><b>Ovládání:</b> šipky ⬆⬇⬅➡</p>
     </div>
 
+    <footer style="margin-top:30px;font-size:.85em;color:#777;">
+        © 2026 Lia Simacková
+    </footer>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const tile = 16;
+
+// Klasická mapa Pac-Mana (jednodušší verze)
+const map = [
+"####################",
+"#........##........#",
+"#.##.###.##.###.##.#",
+"#..................#",
+"#.##.#.######.#.##.#",
+"#....#....##....#..#",
+"####.### #### ###.##",
+"#..................#",
+"#.###.######.###.##",
+"#..................#",
+"####################"
+];
+
+let pacman = {x:1,y:1,dx:0,dy:0};
+let ghosts = [
+    {x:9,y:5,color:"red"},
+    {x:10,y:5,color:"pink"},
+    {x:9,y:6,color:"cyan"},
+    {x:10,y:6,color:"orange"}
+];
+let dots = [];
+
+function initDots(){
+    dots = [];
+    for(let y=0;y<map.length;y++){
+        for(let x=0;x<map[y].length;x++){
+            if(map[y][x]===".") dots.push({x,y});
+        }
+    }
+}
+initDots();
+
+document.addEventListener("keydown",e=>{
+    if(e.key==="ArrowUp"){pacman.dx=0;pacman.dy=-1;}
+    if(e.key==="ArrowDown"){pacman.dx=0;pacman.dy=1;}
+    if(e.key==="ArrowLeft"){pacman.dx=-1;pacman.dy=0;}
+    if(e.key==="ArrowRight"){pacman.dx=1;pacman.dy=0;}
+});
+
+function canMove(x,y){
+    return map[y][x]!=="#";
+}
+
+function resetGame(){
+    pacman={x:1,y:1,dx:0,dy:0};
+    ghosts = [
+        {x:9,y:5,color:"red"},
+        {x:10,y:5,color:"pink"},
+        {x:9,y:6,color:"cyan"},
+        {x:10,y:6,color:"orange"}
+    ];
+    initDots();
+}
+
+function update(){
+    let nx=pacman.x+pacman.dx;
+    let ny=pacman.y+pacman.dy;
+    if(canMove(nx,ny)){pacman.x=nx;pacman.y=ny;}
+
+    dots=dots.filter(d=>!(d.x===pacman.x && d.y===pacman.y));
+
+    ghosts.forEach(g=>{
+        let dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+        let dir = dirs[Math.floor(Math.random()*4)];
+        let gx=g.x+dir[0], gy=g.y+dir[1];
+        if(canMove(gx,gy)){g.x=gx; g.y=gy;}
+        if(g.x===pacman.x && g.y===pacman.y){
+            alert("Chytil tě duch 👻");
+            resetGame();
+        }
+    });
+
+    if(dots.length===0){
+        alert("Vyhrála jsi! 🎉");
+        resetGame();
+    }
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Stěny
+    for(let y=0;y<map.length;y++){
+        for(let x=0;x<map[y].length;x++){
+            if(map[y][x]==="#"){
+                ctx.fillStyle="blue";
+                ctx.fillRect(x*tile,y*tile,tile,tile);
+            }
+        }
+    }
+
+    // Tečky
+    ctx.fillStyle="white";
+    dots.forEach(d=>{
+        ctx.beginPath();
+        ctx.arc(d.x*tile+tile/2,d.y*tile+tile/2,3,0,Math.PI*2);
+        ctx.fill();
+    });
+
+    // Pac-Man
+    ctx.fillStyle="yellow";
+    ctx.beginPath();
+    ctx.arc(pacman.x*tile+tile/2,pacman.y*tile+tile/2,8,0.25*Math.PI,1.75*Math.PI);
+    ctx.lineTo(pacman.x*tile+tile/2,pacman.y*tile+tile/2);
+    ctx.fill();
+
+    // Duchové
+    ghosts.forEach(g=>{
+        ctx.fillStyle=g.color;
+        ctx.beginPath();
+        ctx.arc(g.x*tile+tile/2,g.y*tile+tile/2,8,0,Math.PI*2);
+        ctx.fill();
+    });
+}
+
+function loop(){
+    update();
+    draw();
+    setTimeout(loop,200);
+}
+loop();
+</script>
 </body>
 </html>
