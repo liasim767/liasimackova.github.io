@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Pac-Man hra</title>
+<style>
+body{
+    margin:0;
+    background:#111;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    font-family:sans-serif;
+}
+
+/* tlačítko mimo hru */
+.back{
+    margin-bottom:15px;
+    background:white;
+    border:none;
+    padding:10px 16px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+/* herní okno */
+.game-box{
+    position:relative;
+    width:420px;
+    height:420px;
+    background:black;
+    border-radius:20px;
+    box-shadow:0 0 40px rgba(0,0,0,.5);
+}
+
+canvas{
+    display:block;
+    margin:auto;
+    background:black;
+    border-radius:20px;
+}
+
+/* overlay */
+.overlay{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    color:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    border-radius:20px;
+    display:none;
+    text-align:center;
+}
+
+.overlay button{
+    margin-top:15px;
+    padding:10px 20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- TLAČÍTKO MIMO MAZE -->
+<button class="back" onclick="index.html'">🏠 Zpět na hlavní stránku</button>
+
+<div class="game-box">
+    <canvas id="game" width="400" height="400"></canvas>
+
+    <div id="overlay" class="overlay">
+        <div id="message"></div>
+        <button onclick="restart()">Hrát znovu</button>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const tile = 20;
+
+const map = [
+"####################",
+"#........##........#",
+"#.##.###.##.###.##.#",
+"#..................#",
+"#.##.#.######.#.##.#",
+"#....#....##....#..#",
+"####.### #### ###.##",
+"#..................#",
+"#.###.######.###.##",
+"#..................#",
+"####################"
+];
+
+let pacman, ghosts, dots;
+
+function init(){
+    pacman = {x:1,y:1,dx:0,dy:0};
+    ghosts = [
+        {x:9,y:5,color:"red"},
+        {x:10,y:5,color:"pink"},
+        {x:9,y:6,color:"cyan"},
+        {x:10,y:6,color:"orange"}
+    ];
+    dots=[];
+    for(let y=0;y<map.length;y++){
+        for(let x=0;x<map[y].length;x++){
+            if(map[y][x]===".") dots.push({x,y});
+        }
+    }
+}
+init();
+
+document.addEventListener("keydown",e=>{
+    if(e.key==="ArrowUp"){pacman.dx=0;pacman.dy=-1;}
+    if(e.key==="ArrowDown"){pacman.dx=0;pacman.dy=1;}
+    if(e.key==="ArrowLeft"){pacman.dx=-1;pacman.dy=0;}
+    if(e.key==="ArrowRight"){pacman.dx=1;pacman.dy=0;}
+});
+
+function canMove(x,y){
+    return map[y][x]!=="#";
+}
+
+function update(){
+    let nx=pacman.x+pacman.dx;
+    let ny=pacman.y+pacman.dy;
+    if(canMove(nx,ny)){
+        pacman.x=nx;
+        pacman.y=ny;
+    }
+
+    dots = dots.filter(d=>!(d.x===pacman.x && d.y===pacman.y));
+
+    ghosts.forEach(g=>{
+        let dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+        let dir = dirs[Math.floor(Math.random()*4)];
+        let gx=g.x+dir[0], gy=g.y+dir[1];
+        if(canMove(gx,gy)){g.x=gx; g.y=gy;}
+
+        if(g.x===pacman.x && g.y===pacman.y){
+            showEnd(false);
+        }
+    });
+
+    if(dots.length===0){
+        showEnd(true);
+    }
+}
+
+function drawPacman(x,y){
+    let px=x*tile+tile/2;
+    let py=y*tile+tile/2;
+
+    ctx.fillStyle="yellow";
+    ctx.beginPath();
+    ctx.arc(px,py,8,0.25*Math.PI,1.75*Math.PI);
+    ctx.lineTo(px,py);
+    ctx.fill();
+
+    ctx.fillStyle="black";
+    ctx.beginPath();
+    ctx.arc(px+3,py-3,2,0,Math.PI*2);
+    ctx.fill();
+}
+
+function drawGhost(x,y,color){
+    let px=x*tile;
+    let py=y*tile;
+
+    ctx.fillStyle=color;
+
+    ctx.beginPath();
+    ctx.arc(px+10,py+10,8,Math.PI,0);
+    ctx.lineTo(px+18,py+18);
+    ctx.lineTo(px+2,py+18);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle="white";
+    ctx.beginPath();
+    ctx.arc(px+7,py+10,2,0,Math.PI*2);
+    ctx.arc(px+13,py+10,2,0,Math.PI*2);
+    ctx.fill();
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    for(let y=0;y<map.length;y++){
+        for(let x=0;x<map[y].length;x++){
+            if(map[y][x]==="#"){
+                ctx.fillStyle="blue";
+                ctx.fillRect(x*tile,y*tile,tile,tile);
+            }
+        }
+    }
+
+    ctx.fillStyle="white";
+    dots.forEach(d=>{
+        ctx.beginPath();
+        ctx.arc(d.x*tile+10,d.y*tile+10,3,0,Math.PI*2);
+        ctx.fill();
+    });
+
+    drawPacman(pacman.x,pacman.y);
+    ghosts.forEach(g=>drawGhost(g.x,g.y,g.color));
+}
+
+let gameOver=false;
+
+function loop(){
+    update();
+    draw();
+    if(!gameOver) setTimeout(loop,200);
+}
+
+function showEnd(win){
+    gameOver=true;
+    let overlay=document.getElementById("overlay");
+    let msg=document.getElementById("message");
+
+    overlay.style.display="flex";
+
+    if(win){
+        msg.innerHTML="🏆 Výhra!<br>Skvělá práce!";
+    }else{
+        msg.innerHTML="👻 Chytil tě duch!<br>Zkus to znovu!";
+    }
+}
+
+function restart(){
+    gameOver=false;
+    document.getElementById("overlay").style.display="none";
+    init();
+    loop();
+}
+
+loop();
+</script>
+
+</body>
+</html>
