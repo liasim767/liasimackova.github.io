@@ -50,6 +50,8 @@ body{
     font-size:1em;
     cursor:pointer;
     transition:0.3s;
+    text-decoration: none; /* Pro případ použití tagu <a> */
+    display: inline-block;
 }
 .btn:hover{
     transform:scale(1.05);
@@ -75,15 +77,12 @@ body{
     <p>
         Každá hra je pro mě malé dobrodružství, kde se spojuje kreativita,
         strategie a radost z objevování.
-    </p>
-
     <span class="badge">Gaming • Kreativita • Fantazie</span>
 
-    <!-- TLAČÍTKA -->
-    <nav>
-        <a href="pacman.html">Hra 1 🎮</button>
-        <button class="btn" onclick="location.href='odkaz2.html'">Hra 2 🎮</button>
-        <button class="btn" onclick="location.href='odkaz3.html'">Hra 3 🎮</button>
+    <nav class="btn-container">
+        <button class="btn" onclick="location.href='pacman.html'">Hra 1 🎮</button>
+        
+        <button class="btn" onclick="location.href='cpp.html'">Zajímavost 📜</button>
     </nav>
 
     <footer style="margin-top:30px;font-size:.85em;color:#777;">
